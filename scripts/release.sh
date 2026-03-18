@@ -9,6 +9,29 @@ SIGNING_IDENTITY="Developer ID Application: Sabotage Media, LLC ($TEAM_ID)"
 APPLE_ID="josh@sabotagemedia.com"
 BUNDLE_ID="com.joshpigford.Chops"
 
+if ! command -v create-dmg &>/dev/null; then
+  echo "❌ create-dmg not found. Install with: brew install create-dmg"
+  exit 1
+fi
+
+create_chops_dmg() {
+  rm -f build/Chops.dmg
+  create-dmg \
+    --volname "Chops" \
+    --volicon "build/export/Chops.app/Contents/Resources/AppIcon.icns" \
+    --background "scripts/dmg-background.png" \
+    --window-pos 200 120 \
+    --window-size 790 480 \
+    --icon-size 128 \
+    --icon "Chops.app" 195 220 \
+    --app-drop-link 595 220 \
+    --hide-extension "Chops.app" \
+    --no-internet-enable \
+    build/Chops.dmg \
+    build/export/Chops.app \
+    || test $? -eq 2
+}
+
 echo "🔨 Building Chops v$VERSION..."
 
 # Generate Xcode project
@@ -37,10 +60,7 @@ xcodebuild -exportArchive \
   -exportPath build/export
 
 echo "📦 Creating DMG..."
-hdiutil create -volname "Chops" \
-  -srcfolder build/export/Chops.app \
-  -ov -format UDZO \
-  build/Chops.dmg
+create_chops_dmg
 
 echo "🔏 Notarizing..."
 xcrun notarytool submit build/Chops.dmg \
@@ -49,11 +69,7 @@ xcrun notarytool submit build/Chops.dmg \
 
 echo "📎 Stapling..."
 xcrun stapler staple build/export/Chops.app
-rm build/Chops.dmg
-hdiutil create -volname "Chops" \
-  -srcfolder build/export/Chops.app \
-  -ov -format UDZO \
-  build/Chops.dmg
+create_chops_dmg
 xcrun stapler staple build/Chops.dmg || echo "⚠️  DMG staple failed (normal — CDN propagation delay). App inside is stapled."
 
 echo "🏷️  Tagging v$VERSION..."
