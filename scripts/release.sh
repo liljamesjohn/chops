@@ -89,8 +89,14 @@ cat > build/appcast.xml << APPCAST
 </rss>
 APPCAST
 
+echo "📡 Updating site appcast..."
+cp build/appcast.xml site/public/appcast.xml
+git add site/public/appcast.xml
+git commit -m "chore: update appcast for v$VERSION" || true
+git push
+
 echo "🚀 Creating GitHub Release..."
-gh release create "v$VERSION" build/Chops.dmg build/appcast.xml \
+gh release create "v$VERSION" build/Chops.dmg \
   --title "Chops v$VERSION" \
   --generate-notes
 
