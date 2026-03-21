@@ -3,6 +3,20 @@
   <channel>
     <title>Chops</title>
     <item>
+      <title>Version 1.2.0</title>
+      <sparkle:version>1.2.0</sparkle:version>
+      <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <pubDate>Sat, 21 Mar 2026 12:00:18 +0000</pubDate>
+      <description><![CDATA[<ul><li>Skills registry browser for discovering and installing community skills</li></ul>]]></description>
+      <enclosure
+        url="https://github.com/Shpigford/chops/releases/download/v1.2.0/Chops.dmg"
+        sparkle:edSignature="LtEzDqwAraqYmW3MIdREbPGHkisMXZJbTp37gBHE3hiTFUytnVBHgGdHt1CYEaKGLxbWElf/LT6RTBvxQxI4DQ=="
+        length="3359757"
+        type="application/octet-stream"
+      />
+    </item>
+    <item>
       <title>Version 1.1.0</title>
       <sparkle:version>1.1.0</sparkle:version>
       <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
