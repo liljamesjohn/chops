@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-03-21
+
+- Connect to remote servers (such as OpenClaw) to discover, browse, and edit skills (@t2)
+
 ## [1.4.0] - 2026-03-21
 
 - Delete skills directly from the context menu or toolbar
