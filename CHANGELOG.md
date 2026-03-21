@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-21
+
+- Markdown preview mode with syntax highlighting in the skill editor
+
 ## [1.2.0] - 2026-03-21
 
 - Skills registry browser for discovering and installing community skills
