@@ -15,6 +15,10 @@ struct CollectionListView: View {
         "network", "globe", "bolt", "flame", "leaf"
     ]
 
+    private var trimmedCollectionName: String {
+        newCollectionName.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         ForEach(collections) { collection in
             Label(collection.name, systemImage: collection.icon)
@@ -39,6 +43,8 @@ struct CollectionListView: View {
             VStack(spacing: 12) {
                 TextField("Collection name", text: $newCollectionName)
                     .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit(createCollection)
 
                 LazyVGrid(columns: Array(repeating: GridItem(.fixed(28)), count: 6), spacing: 8) {
                     ForEach(availableIcons, id: \.self) { icon in
@@ -62,22 +68,26 @@ struct CollectionListView: View {
                 HStack {
                     Button("Cancel") { showingNewCollection = false }
                     Spacer()
-                    Button("Create") {
-                        let collection = SkillCollection(
-                            name: newCollectionName,
-                            icon: newCollectionIcon,
-                            sortOrder: collections.count
-                        )
-                        modelContext.insert(collection)
-                        try? modelContext.save()
-                        newCollectionName = ""
-                        showingNewCollection = false
-                    }
-                    .disabled(newCollectionName.isEmpty)
+                    Button("Create", action: createCollection)
+                    .disabled(trimmedCollectionName.isEmpty)
                 }
             }
             .padding()
             .frame(width: 240)
         }
+    }
+
+    private func createCollection() {
+        guard !trimmedCollectionName.isEmpty else { return }
+
+        let collection = SkillCollection(
+            name: trimmedCollectionName,
+            icon: newCollectionIcon,
+            sortOrder: collections.count
+        )
+        modelContext.insert(collection)
+        try? modelContext.save()
+        newCollectionName = ""
+        showingNewCollection = false
     }
 }
