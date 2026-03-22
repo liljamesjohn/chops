@@ -137,6 +137,8 @@ struct CollectionListView: View {
             VStack(spacing: 12) {
                 TextField("Collection name", text: $newCollectionName)
                     .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit(createCollection)
 
                 if let errorMessage {
                     Text(errorMessage)
@@ -169,10 +171,8 @@ struct CollectionListView: View {
                         showingNewCollection = false
                     }
                     Spacer()
-                    Button("Create") {
-                        createCollection()
-                    }
-                    .disabled(newCollectionName.isEmpty)
+                    Button("Create", action: createCollection)
+                    .disabled(normalizedName(newCollectionName).isEmpty)
                 }
             }
             .padding()
