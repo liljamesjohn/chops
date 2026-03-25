@@ -47,6 +47,7 @@ extension ToolSource {
         case .opencode: "OP"
         case .pi: "PI"
         case .agents: "AG"
+        case .antigravity: "AV"
         case .custom: "?"
         }
     }

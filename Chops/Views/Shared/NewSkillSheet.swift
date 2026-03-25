@@ -9,7 +9,7 @@ struct NewSkillSheet: View {
     @State private var selectedTool: ToolSource = .claude
     @State private var errorMessage: String?
 
-    private let creatableTools: [ToolSource] = [.claude, .agents, .cursor, .codex, .amp, .opencode, .pi]
+    private let creatableTools: [ToolSource] = [.claude, .agents, .cursor, .codex, .amp, .opencode, .pi, .antigravity]
 
     var body: some View {
         VStack(spacing: 20) {
@@ -106,6 +106,10 @@ struct NewSkillSheet: View {
             basePath = "\(fm.homeDirectoryForCurrentUser.path)/.pi/agent/skills/\(sanitizedName)"
             fileName = "SKILL.md"
             isDirectory = true
+        case .antigravity:
+            basePath = "\(fm.homeDirectoryForCurrentUser.path)/.gemini/antigravity/skills/\(sanitizedName)"
+            fileName = "SKILL.md"
+            isDirectory = true
         default:
             let firstPath = selectedTool.globalPaths.first ?? "\(fm.homeDirectoryForCurrentUser.path)/.claude/skills/\(sanitizedName)"
             basePath = firstPath
@@ -175,7 +179,7 @@ struct NewSkillSheet: View {
 
             Add your skill instructions here.
             """
-        case .codex, .amp, .opencode, .pi, .agents:
+        case .codex, .amp, .opencode, .pi, .agents, .antigravity:
             return """
             ---
             name: \(skillID)

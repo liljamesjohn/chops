@@ -12,6 +12,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
     case openclaw
     case opencode
     case pi
+    case antigravity
     case custom
 
     var id: String { rawValue }
@@ -29,6 +30,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .opencode: "OpenCode"
         case .pi: "Pi"
         case .agents: "Global Agents"
+        case .antigravity: "Antigravity"
         case .custom: "Custom"
         }
     }
@@ -47,6 +49,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .opencode: "terminal"
         case .pi: "sparkles"
         case .agents: "globe"
+        case .antigravity: "arrow.up.circle"
         case .custom: "folder"
         }
     }
@@ -60,6 +63,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .windsurf: "tool-windsurf"
         case .copilot: "tool-copilot"
         case .amp: "tool-amp"
+        case .antigravity: "tool-antigravity"
         case .opencode: "tool-opencode"
         default: nil
         }
@@ -78,6 +82,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .opencode: .red
         case .pi: .cyan
         case .agents: .mint
+        case .antigravity: .red
         case .custom: .gray
         }
     }
@@ -102,6 +107,7 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .opencode: return ["\(configHome)/opencode/skills"]
         case .pi: return ["\(home)/.pi/agent/skills"]
         case .agents: return ["\(home)/.agents/skills"]
+        case .antigravity: return ["\(home)/.gemini/antigravity/skills"]
         case .custom: return []
         }
     }
@@ -141,6 +147,11 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
                 || Self.cliBinaryExists("copilot")
         case .agents:
             return fm.fileExists(atPath: "\(home)/.agents/skills")
+        case .antigravity:
+            return Self.appBundleExists("Antigravity")
+                || fm.fileExists(atPath: "\(home)/.gemini/antigravity/skills")
+                || fm.fileExists(atPath: "\(home)/.antigravity")
+                || Self.cliBinaryExists("antigravity")
         case .opencode:
             let configHome = ProcessInfo.processInfo.environment["XDG_CONFIG_HOME"]
                 .flatMap { $0.isEmpty ? nil : $0 } ?? "\(home)/.config"
