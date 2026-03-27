@@ -51,12 +51,13 @@ final class SkillScanner {
     private static let projectProbes: [(subpath: String, tool: ToolSource, kind: ItemKind)] = [
         (".claude/skills", .claude, .skill),
         (".claude/agents", .claude, .agent),
+        (".claude/rules", .claude, .rule),
         (".cursor/skills", .cursor, .skill),
-        (".cursor/rules", .cursor, .skill),
+        (".cursor/rules", .cursor, .rule),
         (".cursor/agents", .cursor, .agent),
         (".codex/skills", .codex, .skill),
         (".codex/agents", .codex, .agent),
-        (".windsurf/rules", .windsurf, .skill),
+        (".windsurf/rules", .windsurf, .rule),
         (".github", .copilot, .skill),
         (".github/agents", .copilot, .agent),
         (".config/amp/skills", .amp, .skill),
@@ -102,6 +103,10 @@ final class SkillScanner {
             for path in tool.globalAgentPaths {
                 let url = URL(fileURLWithPath: path)
                 collectFromDirectory(url, toolSource: tool, isGlobal: true, kind: .agent, into: &results)
+            }
+            for path in tool.globalRulePaths {
+                let url = URL(fileURLWithPath: path)
+                collectFromDirectory(url, toolSource: tool, isGlobal: true, kind: .rule, into: &results)
             }
         }
 

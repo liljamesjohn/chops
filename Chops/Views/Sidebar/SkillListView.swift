@@ -30,6 +30,8 @@ struct SkillListView: View {
             result = result.filter { $0.itemKind == .skill }
         case .allAgents:
             result = result.filter { $0.itemKind == .agent }
+        case .allRules:
+            result = result.filter { $0.itemKind == .rule }
         case .favorites:
             result = result.filter { $0.isFavorite }
         case .tool(let tool):
@@ -57,6 +59,7 @@ struct SkillListView: View {
         switch appState.sidebarFilter {
         case .allSkills: "All Skills"
         case .allAgents: "All Agents"
+        case .allRules: "All Rules"
         case .favorites: "Favorites"
         case .tool(let tool): tool.displayName
         case .collection(let name): name
@@ -65,11 +68,22 @@ struct SkillListView: View {
         }
     }
 
-    /// Whether the current filter shows mixed item types (skills and agents together)
+    /// Whether the current filter shows mixed item types (skills, agents, and rules together)
     private var showsTypeBadge: Bool {
         switch appState.sidebarFilter {
-        case .allSkills, .allAgents: false
+        case .allSkills, .allAgents, .allRules: false
         default: true
+        }
+    }
+
+    private var emptyStateContent: (String, String, String) {
+        switch appState.sidebarFilter {
+        case .allAgents:
+            ("No Agents", "person.crop.rectangle", "No agents match the current filter.")
+        case .allRules:
+            ("No Rules", "list.bullet.rectangle", "No rules match the current filter.")
+        default:
+            ("No Skills", "doc.text", "No skills match the current filter.")
         }
     }
 
@@ -153,12 +167,11 @@ struct SkillListView: View {
         }
         .overlay {
             if filteredSkills.isEmpty {
+                let (emptyTitle, emptyIcon, emptyDescription) = emptyStateContent
                 ContentUnavailableView(
-                    appState.sidebarFilter == .allAgents ? "No Agents" : "No Skills",
-                    systemImage: appState.sidebarFilter == .allAgents ? "person.crop.rectangle" : "doc.text",
-                    description: Text(appState.sidebarFilter == .allAgents
-                        ? "No agents match the current filter."
-                        : "No skills match the current filter.")
+                    emptyTitle,
+                    systemImage: emptyIcon,
+                    description: Text(emptyDescription)
                 )
             }
         }
@@ -172,7 +185,13 @@ struct SkillRow: View {
     var body: some View {
         HStack(spacing: 6) {
             if showTypeBadge {
-                Image(systemName: skill.itemKind == .agent ? "person.crop.rectangle" : "doc.text")
+                Image(systemName: {
+                    switch skill.itemKind {
+                    case .agent: "person.crop.rectangle"
+                    case .rule: "list.bullet.rectangle"
+                    case .skill: "doc.text"
+                    }
+                }())
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

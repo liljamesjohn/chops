@@ -27,6 +27,12 @@ struct ContentView: View {
                         systemImage: "person.crop.rectangle",
                         description: Text("Choose an agent from the sidebar to view and edit it.")
                     )
+                case .allRules:
+                    ContentUnavailableView(
+                        "Select a Rule",
+                        systemImage: "list.bullet.rectangle",
+                        description: Text("Choose a rule from the sidebar to view and edit it.")
+                    )
                 default:
                     ContentUnavailableView(
                         "Select a Skill",
@@ -36,7 +42,13 @@ struct ContentView: View {
                 }
             }
         }
-        .searchable(text: $appState.searchText, prompt: appState.sidebarFilter == .allAgents ? "Search agents..." : "Search skills...")
+        .searchable(text: $appState.searchText, prompt: {
+                switch appState.sidebarFilter {
+                case .allAgents: "Search agents..."
+                case .allRules: "Search rules..."
+                default: "Search skills..."
+                }
+            }())
         .onAppear {
             startScanning()
         }
@@ -60,6 +72,12 @@ struct ContentView: View {
                         appState.showingNewSkillSheet = true
                     } label: {
                         Label("New Agent", systemImage: "person.crop.rectangle")
+                    }
+                    Button {
+                        appState.newItemKind = .rule
+                        appState.showingNewSkillSheet = true
+                    } label: {
+                        Label("New Rule", systemImage: "list.bullet.rectangle")
                     }
                     Divider()
                     Button {
@@ -90,6 +108,7 @@ struct ContentView: View {
         for tool in ToolSource.allCases {
             allPaths.append(contentsOf: tool.globalPaths)
             allPaths.append(contentsOf: tool.globalAgentPaths)
+            allPaths.append(contentsOf: tool.globalRulePaths)
         }
         let fm = FileManager.default
         let home = fm.homeDirectoryForCurrentUser.path

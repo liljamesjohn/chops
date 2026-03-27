@@ -112,8 +112,8 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         }()
         switch self {
         case .claude: return ["\(home)/.claude/skills"]
-        case .cursor: return ["\(home)/.cursor/skills", "\(home)/.cursor/rules"]
-        case .windsurf: return ["\(home)/.codeium/windsurf/memories", "\(home)/.windsurf/rules"]
+        case .cursor: return ["\(home)/.cursor/skills"]
+        case .windsurf: return ["\(home)/.codeium/windsurf/memories"]
         case .codex: return ["\(home)/.codex/skills"]
         case .copilot: return ["\(home)/.copilot/skills"]
         case .aider: return []
@@ -125,6 +125,16 @@ enum ToolSource: String, Codable, CaseIterable, Identifiable {
         case .antigravity: return ["\(home)/.gemini/antigravity/skills"]
         case .claudeDesktop: return []
         case .custom: return []
+        }
+    }
+
+    var globalRulePaths: [String] {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        switch self {
+        case .claude: return ["\(home)/.claude/rules"]
+        case .cursor: return ["\(home)/.cursor/rules"]
+        case .windsurf: return ["\(home)/.windsurf/rules"]
+        default: return []
         }
     }
 

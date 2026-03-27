@@ -4,6 +4,7 @@ import Foundation
 enum ItemKind: String, Codable, CaseIterable {
     case skill
     case agent
+    case rule
 }
 
 @Model
@@ -45,7 +46,11 @@ final class Skill {
     }
 
     var displayTypeName: String {
-        itemKind == .agent ? "Agent" : "Skill"
+        switch itemKind {
+        case .agent: "Agent"
+        case .rule: "Rule"
+        case .skill: "Skill"
+        }
     }
 
     var toolSources: [ToolSource] {

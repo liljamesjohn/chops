@@ -11,22 +11,40 @@ struct NewSkillSheet: View {
 
     private let skillCreatableTools: [ToolSource] = [.claude, .agents, .cursor, .codex, .amp, .opencode, .pi, .antigravity]
     private let agentCreatableTools: [ToolSource] = [.claude, .cursor, .codex]
+    private let ruleCreatableTools: [ToolSource] = [.claude, .cursor, .windsurf]
 
     private var itemKind: ItemKind { appState.newItemKind }
     private var isAgent: Bool { itemKind == .agent }
+    private var isRule: Bool { itemKind == .rule }
 
     private var creatableTools: [ToolSource] {
-        isAgent ? agentCreatableTools : skillCreatableTools
+        switch itemKind {
+        case .agent: agentCreatableTools
+        case .rule: ruleCreatableTools
+        case .skill: skillCreatableTools
+        }
     }
 
     var body: some View {
         VStack(spacing: 20) {
-            Text(isAgent ? "New Agent" : "New Skill")
+            Text({
+                    switch itemKind {
+                    case .agent: "New Agent"
+                    case .rule: "New Rule"
+                    case .skill: "New Skill"
+                    }
+                }())
                 .font(.title2)
                 .fontWeight(.bold)
 
             Form {
-                TextField(isAgent ? "Agent name" : "Skill name", text: $skillName)
+                TextField({
+                    switch itemKind {
+                    case .agent: "Agent name"
+                    case .rule: "Rule name"
+                    case .skill: "Skill name"
+                    }
+                }(), text: $skillName)
                     .textFieldStyle(.roundedBorder)
 
                 Picker("Tool", selection: $selectedTool) {
@@ -98,6 +116,14 @@ struct NewSkillSheet: View {
             }
             basePath = "\(agentDir)/\(sanitizedName)"
             fileName = "\(sanitizedName).md"
+        } else if isRule {
+            // Rules go into the tool's rules/ directory as loose files
+            guard let ruleDir = selectedTool.globalRulePaths.first else {
+                errorMessage = "This tool doesn't support rules"
+                return
+            }
+            basePath = ruleDir
+            fileName = "\(sanitizedName).md"
         } else {
             // Skills use existing path logic
             switch selectedTool {
@@ -138,7 +164,13 @@ struct NewSkillSheet: View {
             let filePath = "\(basePath)/\(fileName)"
 
             guard !fm.fileExists(atPath: filePath) else {
-                errorMessage = isAgent ? "An agent with this name already exists" : "A skill with this name already exists"
+                errorMessage = {
+                    switch itemKind {
+                    case .agent: "An agent with this name already exists"
+                    case .rule: "A rule with this name already exists"
+                    case .skill: "A skill with this name already exists"
+                    }
+                }()
                 return
             }
 
@@ -149,7 +181,7 @@ struct NewSkillSheet: View {
             let skill = Skill(
                 filePath: filePath,
                 toolSource: selectedTool,
-                isDirectory: true,
+                isDirectory: !isRule,
                 name: skillName,
                 skillDescription: parsed.description,
                 content: parsed.content,
@@ -183,6 +215,18 @@ struct NewSkillSheet: View {
             ## Instructions
 
             Add your agent instructions here.
+            """
+        }
+
+        if isRule {
+            return """
+            ---
+            description: \(name)
+            ---
+
+            # \(name)
+
+            Add your rule instructions here.
             """
         }
 

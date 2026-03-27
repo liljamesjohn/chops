@@ -14,6 +14,7 @@ final class AppState {
 enum SidebarFilter: Hashable {
     case allSkills
     case allAgents
+    case allRules
     case favorites
     case tool(ToolSource)
     case collection(String)

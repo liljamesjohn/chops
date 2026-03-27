@@ -34,6 +34,10 @@ struct SidebarView: View {
                     .badge(allSkills.filter { $0.itemKind == .agent }.count)
                     .tag(SidebarFilter.allAgents)
 
+                Label("All Rules", systemImage: "list.bullet.rectangle")
+                    .badge(allSkills.filter { $0.itemKind == .rule }.count)
+                    .tag(SidebarFilter.allRules)
+
                 Label("Favorites", systemImage: "star")
                     .badge(allSkills.filter(\.isFavorite).count)
                     .tag(SidebarFilter.favorites)
