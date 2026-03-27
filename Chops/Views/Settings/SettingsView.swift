@@ -8,6 +8,7 @@ extension Notification.Name {
 struct SettingsView: View {
     let updater: SPUUpdater
     @State private var customPaths: [String] = []
+    @State private var projectPaths: [String] = []
     @State private var defaultTool: ToolSource = .claude
 
     var body: some View {
@@ -15,6 +16,11 @@ struct SettingsView: View {
             generalSettings
                 .tabItem {
                     Label("General", systemImage: "gearshape")
+                }
+
+            projectSettings
+                .tabItem {
+                    Label("Projects", systemImage: "folder.badge.person.crop")
                 }
 
             scanSettings
@@ -35,6 +41,7 @@ struct SettingsView: View {
         .frame(width: 480, height: 380)
         .onAppear {
             loadCustomPaths()
+            loadProjectPaths()
         }
     }
 
@@ -47,6 +54,57 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .padding()
+    }
+
+    private var projectSettings: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Projects")
+                .font(.headline)
+
+            Text("Add specific project directories to scan for skills, agents, and rules.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            List {
+                ForEach(projectPaths, id: \.self) { path in
+                    HStack {
+                        Image(systemName: "folder")
+                        Text(path)
+                            .font(.system(.body, design: .monospaced))
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer()
+                        Button {
+                            projectPaths.removeAll { $0 == path }
+                            saveProjectPaths()
+                        } label: {
+                            Image(systemName: "minus.circle.fill")
+                                .foregroundStyle(.red)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+            .frame(minHeight: 120)
+
+            HStack {
+                Spacer()
+                Button("Add Project...") {
+                    let panel = NSOpenPanel()
+                    panel.canChooseFiles = false
+                    panel.canChooseDirectories = true
+                    panel.allowsMultipleSelection = false
+                    if panel.runModal() == .OK, let url = panel.url {
+                        let path = url.path
+                        if !projectPaths.contains(path) {
+                            projectPaths.append(path)
+                            saveProjectPaths()
+                        }
+                    }
+                }
+            }
+        }
         .padding()
     }
 
@@ -166,6 +224,15 @@ struct SettingsView: View {
 
     private func saveCustomPaths() {
         UserDefaults.standard.set(customPaths, forKey: "customScanPaths")
+        NotificationCenter.default.post(name: .customScanPathsChanged, object: nil)
+    }
+
+    private func loadProjectPaths() {
+        projectPaths = UserDefaults.standard.stringArray(forKey: "customProjectPaths") ?? []
+    }
+
+    private func saveProjectPaths() {
+        UserDefaults.standard.set(projectPaths, forKey: "customProjectPaths")
         NotificationCenter.default.post(name: .customScanPathsChanged, object: nil)
     }
 }

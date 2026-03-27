@@ -72,8 +72,9 @@ final class SkillScanner {
         scanGeneration += 1
         let generation = scanGeneration
         let customPaths = UserDefaults.standard.stringArray(forKey: "customScanPaths") ?? []
+        let projectPaths = UserDefaults.standard.stringArray(forKey: "customProjectPaths") ?? []
         scanTask = Task.detached { [weak self] in
-            let results = Self.collectAllSkills(customPaths: customPaths)
+            let results = Self.collectAllSkills(customPaths: customPaths, projectPaths: projectPaths)
             guard !Task.isCancelled else { return }
             let elapsed = CFAbsoluteTimeGetCurrent() - start
             AppLogger.scanning.notice("File collection done: \(results.count) skills in \(String(format: "%.2f", elapsed))s")
@@ -88,7 +89,7 @@ final class SkillScanner {
     }
 
     /// Pure filesystem I/O — safe to run off main thread.
-    private static func collectAllSkills(customPaths: [String]) -> [ScannedSkillData] {
+    private static func collectAllSkills(customPaths: [String], projectPaths: [String] = []) -> [ScannedSkillData] {
         var results: [ScannedSkillData] = []
 
         for tool in ToolSource.allCases where tool != .custom {
@@ -125,7 +126,36 @@ final class SkillScanner {
             collectFromCustomDirectory(URL(fileURLWithPath: path), into: &results)
         }
 
+        for path in projectPaths {
+            guard !Task.isCancelled else { return results }
+            collectFromProject(URL(fileURLWithPath: path), into: &results)
+        }
+
         return results
+    }
+
+    /// Scan a single project directory for tool-specific items.
+    private static func collectFromProject(_ project: URL, into results: inout [ScannedSkillData]) {
+        let fm = FileManager.default
+        var isDir: ObjCBool = false
+        guard fm.fileExists(atPath: project.path, isDirectory: &isDir), isDir.boolValue else { return }
+
+        for probe in projectProbes {
+            guard !Task.isCancelled else { return }
+            let probePath = project.appendingPathComponent(probe.subpath)
+            guard fm.fileExists(atPath: probePath.path) else { continue }
+
+            if probe.tool == .copilot && probe.kind == .skill {
+                let file = probePath.appendingPathComponent("copilot-instructions.md")
+                if fm.fileExists(atPath: file.path) {
+                    if let data = collectSkillData(at: file, toolSource: .copilot, isDirectory: false, isGlobal: false, kind: probe.kind) {
+                        results.append(data)
+                    }
+                }
+            } else {
+                collectFromDirectory(probePath, toolSource: probe.tool, isGlobal: false, kind: probe.kind, into: &results)
+            }
+        }
     }
 
     private static func collectFromCustomDirectory(_ directory: URL, into results: inout [ScannedSkillData]) {
